@@ -72,3 +72,8 @@ android/local.properties
 web/.vite/
 web/.env.local
 web/.env.*.local
+
+# ...existing code...
+.env
+.env.*
+# ...existing code...
