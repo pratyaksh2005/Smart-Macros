@@ -1,55 +1,74 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDEs
-.vscode/
-.idea/
+# -------------------
+# Global ignores
+# -------------------
+.DS_Store
+*.log
+*.tmp
 *.swp
 *.swo
+*.lock
 
-# OS
-.DS_Store
-Thumbs.db
+# VS Code settings
+.vscode/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Python / FastAPI
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
+.Python
+env/
+venv/
+.venv/
+smartmacros-env/
+*.sqlite3
 
-# Node.js (for your web folder)
+# FastAPI deps
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# Node / React
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json   # optional: if you want npm to always regenerate it
+pnpm-lock.yaml
+yarn.lock
 
-# Build outputs
+# React build
 dist/
 build/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Podfile.lock
+ios/Pods/
+macos/Pods/
+macos/Podfile.lock
+
+# Xcode
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+*.iml
+
+# Web / Vite
+web/.vite/
+web/.env.local
+web/.env.*.local
