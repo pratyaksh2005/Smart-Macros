@@ -40,11 +40,12 @@ export default function MedicalPage() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "40px auto", padding: 16 }}>
-      <h1>Medical & Nutrition Needs</h1>
-      <p>This helps us adapt meal planning and safety rules.</p>
+    <div className="container">
+      <div className="card" style={{ maxWidth: 520, margin: "40px auto" }}>
+        <h1>Medical & Nutrition Needs</h1>
+        <p>This helps us adapt meal planning and safety rules.</p>
 
-      <form onSubmit={save}>
+        <form onSubmit={save}>
         <label>Nutritional disability or condition</label>
         <select
           value={nutritionDisability}
@@ -73,10 +74,11 @@ export default function MedicalPage() {
           />
         </div>
 
-        <button style={{ marginTop: 16, padding: 10, width: "100%" }}>
+        <button className="btn-primary" style={{ width: "100%" }}>
           Save and go to dashboard
         </button>
       </form>
     </div>
-  );
+  </div>
+);
 }

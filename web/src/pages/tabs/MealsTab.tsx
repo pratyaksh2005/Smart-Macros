@@ -12,8 +12,8 @@ export default function MealsTab() {
       : ["Breakfast: Eggs + toast", "Lunch: Chicken rice bowl", "Dinner: Salmon + veg"];
 
   return (
-    <div style={{ padding: 16, borderRadius: 14, background: "#fff", border: "1px solid #eee" }}>
-      <h3 style={{ marginTop: 0 }}>Meal Plan</h3>
+    <div className="card">
+      <h3>Meal Plan</h3>
       <ol>
         {meals.map((m) => (
           <li key={m}>{m}</li>

@@ -12,8 +12,8 @@ export default function WorkoutTab() {
       : ["Mon: Upper", "Wed: Lower", "Fri: Full body", "1–2x cardio"];
 
   return (
-    <div style={{ padding: 16, borderRadius: 14, background: "#fff", border: "1px solid #eee" }}>
-      <h3 style={{ marginTop: 0 }}>Workout Plan</h3>
+    <div className="card">
+      <h3>Workout Plan</h3>
       <ul>
         {plan.map((p) => (
           <li key={p}>{p}</li>

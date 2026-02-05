@@ -1,16 +1,10 @@
 import { NavLink, useNavigate, Outlet } from "react-router-dom";
 import { logout } from "../services/mockAuth";
-
-const linkStyle = ({ isActive }: { isActive: boolean }) => ({
-  padding: "10px 12px",
-  borderRadius: 10,
-  textDecoration: "none",
-  color: "black",
-  background: isActive ? "#eaeaea" : "transparent",
-});
+import { getUser } from "../services/storage";
 
 export default function AppShell() {
   const nav = useNavigate();
+  const user = getUser();
 
   function onLogout() {
     logout();
@@ -18,22 +12,51 @@ export default function AppShell() {
   }
 
   return (
-    <div style={{ maxWidth: 980, margin: "24px auto", padding: 16 }}>
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <h2 style={{ margin: 0 }}>Smart Macros</h2>
-        <button onClick={onLogout} style={{ padding: "10px 12px" }}>Logout</button>
-      </header>
+    <div className="container">
+      <div className="navbar">
+        <div className="brand">
+          <div className="brand-title">Smart Macros</div>
+          <div className="brand-sub">
+            {user?.email ? `Signed in as ${user.email}` : "Prototype build"}
+          </div>
+        </div>
 
-      <nav style={{ display: "flex", gap: 8, marginTop: 16, padding: 8, borderRadius: 14, background: "#f6f6f6" }}>
-        <NavLink to="workout" style={linkStyle}>Workout</NavLink>
-        <NavLink to="meals" style={linkStyle}>Meals</NavLink>
-        <NavLink to="grocery" style={linkStyle}>Grocery</NavLink>
-        <NavLink to="profile" style={linkStyle}>Profile</NavLink>
-      </nav>
+        <button onClick={onLogout}>Logout</button>
+      </div>
 
-      <main style={{ marginTop: 16 }}>
-        <Outlet />
-      </main>
+      <div className="tabs">
+        <NavLink
+          to="workout"
+          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
+        >
+          Workout
+        </NavLink>
+
+        <NavLink
+          to="meals"
+          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
+        >
+          Meals
+        </NavLink>
+
+        <NavLink
+          to="grocery"
+          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
+        >
+          Grocery
+        </NavLink>
+
+        <NavLink
+          to="profile"
+          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
+        >
+          Profile
+        </NavLink>
+      </div>
+
+      <div style={{ height: 14 }} />
+
+      <Outlet />
     </div>
   );
 }

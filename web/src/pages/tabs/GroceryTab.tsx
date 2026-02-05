@@ -164,80 +164,109 @@ export default function GroceryTab() {
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
-      <div style={{ padding: 16, borderRadius: 14, background: "#fff", border: "1px solid #eee" }}>
-        <h3 style={{ marginTop: 0 }}>Grocery List</h3>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-          <div style={{ color: "#444" }}>
-            Total: {counts.total} · Remaining: {counts.remaining} · Done: {counts.checked}
+      <div className="card">
+        <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <h3>Grocery List</h3>
+            <div className="badge">
+              Total {counts.total} · Remaining {counts.remaining} · Done {counts.checked}
+            </div>
           </div>
 
-          <div style={{ marginLeft: "auto", display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button onClick={generate} style={{ padding: "10px 12px" }}>
+          <div className="row" style={{ justifyContent: "flex-end" }}>
+            <button className="btn-primary" onClick={generate}>
               Generate starter list
             </button>
-            <button onClick={clearChecked} style={{ padding: "10px 12px" }} disabled={!counts.checked}>
+            <button onClick={clearChecked} disabled={!counts.checked}>
               Clear checked
             </button>
-            <button onClick={clearAll} style={{ padding: "10px 12px" }} disabled={!counts.total}>
+            <button className="btn-danger" onClick={clearAll} disabled={!counts.total}>
               Clear all
             </button>
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, marginTop: 12 }}>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search items, category, quantity..."
-            style={{ width: "100%", padding: 10 }}
-          />
-          <label style={{ display: "flex", alignItems: "center", gap: 8, userSelect: "none" }}>
-            <input type="checkbox" checked={hideChecked} onChange={(e) => setHideChecked(e.target.checked)} />
-            Hide checked
-          </label>
+        <div className="hr" />
+
+        <div className="grid-2">
+          <div>
+            <label>Search</label>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search items, category, quantity..."
+            />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <label style={{ display: "flex", gap: 10, alignItems: "center", margin: 0 }}>
+              <input
+                type="checkbox"
+                checked={hideChecked}
+                onChange={(e) => setHideChecked(e.target.checked)}
+                style={{ width: 18, height: 18 }}
+              />
+              Hide checked
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div style={{ padding: 16, borderRadius: 14, background: "#fff", border: "1px solid #eee" }}>
-        <h4 style={{ marginTop: 0 }}>Add item</h4>
-
-        <form onSubmit={addItem} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: 10 }}>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Item name"
-            style={{ padding: 10 }}
-          />
-          <input
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="Quantity"
-            style={{ padding: 10 }}
-          />
-          <select value={category} onChange={(e) => setCategory(e.target.value as Category)} style={{ padding: 10 }}>
-            <option value="Protein">Protein</option>
-            <option value="Carbs">Carbs</option>
-            <option value="Fats">Fats</option>
-            <option value="Veg">Veg</option>
-            <option value="Fruit">Fruit</option>
-            <option value="Dairy">Dairy</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <button style={{ padding: "10px 12px" }}>Add</button>
-        </form>
-
-        <p style={{ marginTop: 10, color: "#444" }}>
+        <p style={{ marginTop: 12 }}>
           Starter list adapts to your goal, diet preference, and nutrition disability selection.
         </p>
       </div>
 
-      <div style={{ padding: 16, borderRadius: 14, background: "#fff", border: "1px solid #eee" }}>
-        <h4 style={{ marginTop: 0 }}>Items</h4>
+      <div className="card">
+        <h4>Add item</h4>
+
+        <form onSubmit={addItem} className="grid-3" style={{ alignItems: "end" }}>
+          <div>
+            <label>Item</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Chicken breast"
+            />
+          </div>
+
+          <div>
+            <label>Quantity</label>
+            <input
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="e.g. 1 kg"
+            />
+          </div>
+
+          <div>
+            <label>Category</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
+              <option value="Protein">Protein</option>
+              <option value="Carbs">Carbs</option>
+              <option value="Fats">Fats</option>
+              <option value="Veg">Veg</option>
+              <option value="Fruit">Fruit</option>
+              <option value="Dairy">Dairy</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <button className="btn-primary" style={{ gridColumn: "1 / -1" }}>
+            Add item
+          </button>
+        </form>
+      </div>
+
+      <div className="card">
+        <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+          <h4>Items</h4>
+          <small>{filtered.length} shown</small>
+        </div>
+
+        <div className="hr" />
 
         {filtered.length === 0 ? (
-          <p style={{ color: "#444" }}>No items match your filters. Add one or generate a starter list.</p>
+          <p>No items match your filters. Add one or generate a starter list.</p>
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
             {filtered.map((i) => (
@@ -249,27 +278,38 @@ export default function GroceryTab() {
                   alignItems: "center",
                   gap: 10,
                   padding: 12,
-                  borderRadius: 12,
-                  border: "1px solid #eee",
-                  background: i.checked ? "#fafafa" : "#fff",
+                  borderRadius: 14,
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  background: i.checked ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
                 }}
               >
-                <input type="checkbox" checked={i.checked} onChange={() => toggle(i.id)} />
+                <input
+                  type="checkbox"
+                  checked={i.checked}
+                  onChange={() => toggle(i.id)}
+                  style={{ width: 18, height: 18 }}
+                />
 
                 <div>
-                  <div style={{ fontWeight: 600, textDecoration: i.checked ? "line-through" : "none" }}>
+                  <div
+                    style={{
+                      fontWeight: 650,
+                      textDecoration: i.checked ? "line-through" : "none",
+                      color: i.checked ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.92)",
+                    }}
+                  >
                     {i.name}
                   </div>
-                  <div style={{ color: "#555", fontSize: 13 }}>
+                  <small>
                     {i.quantity} · {i.category}
-                  </div>
+                  </small>
                 </div>
 
-                <button onClick={() => toggle(i.id)} style={{ padding: "8px 10px" }}>
+                <button onClick={() => toggle(i.id)}>
                   {i.checked ? "Undo" : "Done"}
                 </button>
 
-                <button onClick={() => remove(i.id)} style={{ padding: "8px 10px" }}>
+                <button className="btn-danger" onClick={() => remove(i.id)}>
                   Delete
                 </button>
               </div>

@@ -29,32 +29,32 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: "60px auto", padding: 16 }}>
-      <h1>Smart Macros</h1>
-      <p>Mock login for IPD prototype</p>
+    <div className="container">
+      <div className="card" style={{ maxWidth: 520, margin: "40px auto" }}>
+        <h1>Smart Macros</h1>
+        <p>Mock login for IPD prototype</p>
 
-      <form onSubmit={onSubmit}>
-        <label>Email</label>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-        />
+        <form onSubmit={onSubmit}>
+          <label>Email</label>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          />
 
-        <label>Password</label>
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          type="password"
-          placeholder="••••••••"
-          style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
-        />
+          <label>Password</label>
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            type="password"
+            placeholder="••••••••"
+            style={{ width: "100%", padding: 10, margin: "6px 0 12px" }}
+          />
 
-        <button style={{ width: "100%", padding: 10 }}>
-          Continue
-        </button>
-      </form>
+          <button className="btn-primary" style={{ width: "100%" }}>Continue</button>
+        </form>
+      </div>
     </div>
   );
 }

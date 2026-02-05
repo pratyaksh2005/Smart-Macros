@@ -53,11 +53,12 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "40px auto", padding: 16 }}>
-      <h1>Onboarding</h1>
-      <p>Tell us about you.</p>
+    <div className="container">
+      <div className="card" style={{ maxWidth: 520, margin: "40px auto" }}>
+        <h1>Onboarding</h1>
+        <p>Tell us about you.</p>
 
-      <form onSubmit={save}>
+        <form onSubmit={save}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div>
             <label>First name</label>
@@ -121,10 +122,11 @@ export default function OnboardingPage() {
           <input value={allergies} onChange={(e) => setAllergies(e.target.value)} style={{ width: "100%", padding: 10 }} />
         </div>
 
-        <button style={{ marginTop: 16, padding: 10, width: "100%" }}>
+        <button className="btn-primary" style={{ width: "100%" }}>
           Save and continue
         </button>
       </form>
     </div>
-  );
+  </div>
+);
 }
