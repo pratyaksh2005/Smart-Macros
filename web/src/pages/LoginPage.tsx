@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="container">
       <div className="card" style={{ maxWidth: 520, margin: "40px auto" }}>
         <h1>Smart Macros</h1>
-        <p>Mock login for IPD prototype</p>
+        <p>Prototype</p>
 
         <form onSubmit={onSubmit}>
           <label>Email</label>

@@ -20,7 +20,7 @@ export default function MealsTab() {
         ))}
       </ol>
       <p style={{ marginTop: 12, color: "#444" }}>
-        This is a template plan for IPD. Later it becomes AI-generated and clinician-aware.
+        Template Plan.
       </p>
     </div>
   );
