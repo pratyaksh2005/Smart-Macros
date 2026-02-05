@@ -1,17 +1,58 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Home from './pages/Home';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-const App: React.FC = () => {
+import LoginPage from "./pages/LoginPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import MedicalPage from "./pages/MedicalPage";
+import AppShell from "./pages/AppShell";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import WorkoutTab from "./pages/tabs/WorkoutTab";
+import MealsTab from "./pages/tabs/MealsTab";
+import GroceryTab from "./pages/tabs/GroceryTab";
+import ProfileTab from "./pages/tabs/ProfileTab";
+
+export default function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-      </Routes>
-    </Router>
-  );
-};
+        <Route path="/" element={<LoginPage />} />
 
-export default App;
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/medical"
+          element={
+            <ProtectedRoute>
+              <MedicalPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="workout" replace />} />
+          <Route path="workout" element={<WorkoutTab />} />
+          <Route path="meals" element={<MealsTab />} />
+          <Route path="grocery" element={<GroceryTab />} />
+          <Route path="profile" element={<ProfileTab />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
