@@ -11,6 +11,7 @@ import WorkoutTab from "./pages/tabs/WorkoutTab";
 import MealsTab from "./pages/tabs/MealsTab";
 import GroceryTab from "./pages/tabs/GroceryTab";
 import ProfileTab from "./pages/tabs/ProfileTab";
+import HardwareTab from "./pages/tabs/HardwareTab";
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="meals" element={<MealsTab />} />
           <Route path="grocery" element={<GroceryTab />} />
           <Route path="profile" element={<ProfileTab />} />
+          <Route path="hardware" element={<HardwareTab />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

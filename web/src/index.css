@@ -257,3 +257,244 @@ button:disabled {
   background: var(--stroke);
   margin: 14px 0;
 }
+
+.grocery-tab {
+  display: grid;
+  gap: 16px;
+}
+
+.grocery-header-row,
+.grocery-items-header {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.grocery-actions {
+  justify-content: flex-end;
+}
+
+.grocery-filter-row {
+  display: flex;
+  align-items: flex-end;
+}
+
+.grocery-hide-checked {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+}
+
+.grocery-status {
+  min-height: 28px;
+  margin-top: 12px;
+}
+
+.grocery-description {
+  margin-top: 12px;
+}
+
+.grocery-form {
+  align-items: end;
+}
+
+.grocery-add-button {
+  grid-column: 1 / -1;
+}
+
+.grocery-items-list {
+  display: grid;
+  gap: 10px;
+}
+
+.grocery-item-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.grocery-item-card-checked {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.grocery-item-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.grocery-item-title {
+  font-weight: 650;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.grocery-item-title-checked {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.grocery-item-meta {
+  color: var(--muted2);
+}
+
+.app-shell-gap {
+  height: 14px;
+}
+
+.hardware-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.hardware-viewer {
+  position: relative;
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  min-height: 400px;
+}
+
+.hardware-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: rgba(124, 92, 255, 0.8);
+  box-shadow: 0 0 15px var(--accent);
+  animation: hardware-scan 2.5s linear infinite;
+  z-index: 2;
+}
+
+.hardware-image {
+  width: 100%;
+  display: block;
+  opacity: 1;
+  filter: none;
+  transition: opacity 1s ease-in-out, filter 1s ease-in-out;
+}
+
+.hardware-image-scanning {
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.hardware-hotspot {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: crosshair;
+  z-index: 3;
+}
+
+.hardware-hotspot-inner {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(124, 92, 255, 0.5);
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--accent);
+  animation: hardware-pulse 2s infinite;
+}
+
+.hardware-hotspot:focus-visible .hardware-hotspot-inner {
+  box-shadow: 0 0 0 3px #fff, 0 0 16px var(--accent);
+}
+
+.hardware-hotspot-pos-1 {
+  top: 38%;
+  left: 15%;
+}
+
+.hardware-hotspot-pos-2 {
+  top: 68%;
+  left: 31%;
+}
+
+.hardware-hotspot-pos-3 {
+  top: 22%;
+  left: 63%;
+}
+
+.hardware-hotspot-pos-4 {
+  top: 85%;
+  left: 50%;
+}
+
+.hardware-terminal {
+  background: #0a0a0a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #22c55e;
+}
+
+.hardware-terminal-title {
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.hardware-log-line {
+  opacity: 0.8;
+}
+
+.hardware-focused-module {
+  margin-top: 16px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@keyframes hardware-scan {
+  0% {
+    top: 0;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes hardware-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(124, 92, 255, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(124, 92, 255, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(124, 92, 255, 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-badge {
+  min-height: 38px;
+}
+
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  animation: spin 0.8s linear infinite;
+}

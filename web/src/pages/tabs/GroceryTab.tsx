@@ -3,6 +3,22 @@ import type { GroceryItem, UserProfile } from "../../types";
 import { getGrocery, getUser, setGrocery } from "../../services/storage";
 
 type Category = GroceryItem["category"];
+type ClinicalBasketResponse = {
+  status: string;
+  message: string;
+  basket: Array<{
+    name: string;
+    category: Category;
+    ai_flag?: string | null;
+  }>;
+};
+
+type MedicalProfilePayload = {
+  goal: UserProfile["goal"];
+  dietary_preference: UserProfile["dietaryPreference"];
+  nutrition_disability: UserProfile["nutritionDisability"];
+  allergies: string[];
+};
 
 function uid() {
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
@@ -78,6 +94,25 @@ function starterList(profile?: UserProfile): GroceryItem[] {
   return list;
 }
 
+function buildMedicalProfile(profile?: UserProfile): MedicalProfilePayload {
+  return {
+    goal: profile?.goal ?? "MAINTAIN",
+    dietary_preference: profile?.dietaryPreference ?? "NONE",
+    nutrition_disability: profile?.nutritionDisability ?? "NONE",
+    allergies: profile?.allergies ?? [],
+  };
+}
+
+function basketToGroceryItems(response: ClinicalBasketResponse["basket"]): GroceryItem[] {
+  return response.map((item) => ({
+    id: uid(),
+    name: item.name,
+    quantity: "1",
+    checked: false,
+    category: item.category,
+  }));
+}
+
 export default function GroceryTab() {
   const user = getUser();
   const profile = user?.profile;
@@ -89,6 +124,8 @@ export default function GroceryTab() {
 
   const [query, setQuery] = useState("");
   const [hideChecked, setHideChecked] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setItems(getGrocery());
@@ -157,15 +194,47 @@ export default function GroceryTab() {
     setItems([]);
   }
 
-  function generate() {
-    const list = starterList(profile);
-    setItems(list);
+  async function generate() {
+    if (isGenerating) return;
+
+    setIsGenerating(true);
+    setGenerationMessage("Analyzing medical profile & local grocery data...");
+
+    const profilePayload = buildMedicalProfile(profile);
+    const request = fetch("/api/generate-clinical-basket", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profilePayload),
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    try {
+      const response = await request;
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      const data = (await response.json()) as ClinicalBasketResponse;
+      setItems(basketToGroceryItems(data.basket));
+      setGenerationMessage(data.message);
+      return;
+    } catch {
+      setItems(starterList(profile));
+      setGenerationMessage("Clinical rules engine fallback applied.");
+    } finally {
+      setIsGenerating(false);
+      window.setTimeout(() => setGenerationMessage(null), 1800);
+    }
   }
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div className="grocery-tab">
       <div className="card">
-        <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+        <div className="row grocery-header-row">
           <div>
             <h3>Grocery List</h3>
             <div className="badge">
@@ -173,9 +242,9 @@ export default function GroceryTab() {
             </div>
           </div>
 
-          <div className="row" style={{ justifyContent: "flex-end" }}>
+          <div className="row grocery-actions">
             <button className="btn-primary" onClick={generate}>
-              Generate starter list
+              {isGenerating ? "Generating..." : "Generate starter list"}
             </button>
             <button onClick={clearChecked} disabled={!counts.checked}>
               Clear checked
@@ -198,20 +267,29 @@ export default function GroceryTab() {
             />
           </div>
 
-          <div style={{ display: "flex", alignItems: "flex-end" }}>
-            <label style={{ display: "flex", gap: 10, alignItems: "center", margin: 0 }}>
+          <div className="grocery-filter-row">
+            <label className="grocery-hide-checked">
               <input
                 type="checkbox"
                 checked={hideChecked}
                 onChange={(e) => setHideChecked(e.target.checked)}
-                style={{ width: 18, height: 18 }}
+                className="grocery-item-checkbox"
               />
               Hide checked
             </label>
           </div>
         </div>
 
-        <p style={{ marginTop: 12 }}>
+        <div className="grocery-status">
+          {generationMessage ? (
+            <div className="badge loading-badge">
+              {isGenerating ? <span className="loading-spinner" aria-hidden="true" /> : null}
+              <span>{generationMessage}</span>
+            </div>
+          ) : null}
+        </div>
+
+        <p className="grocery-description">
           Starter list adapts to your goal, diet preference, and nutrition disability selection.
         </p>
       </div>
@@ -219,7 +297,7 @@ export default function GroceryTab() {
       <div className="card">
         <h4>Add item</h4>
 
-        <form onSubmit={addItem} className="grid-3" style={{ alignItems: "end" }}>
+        <form onSubmit={addItem} className="grid-3 grocery-form">
           <div>
             <label>Item</label>
             <input
@@ -240,7 +318,11 @@ export default function GroceryTab() {
 
           <div>
             <label>Category</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as Category)}>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Category)}
+              aria-label="Category"
+            >
               <option value="Protein">Protein</option>
               <option value="Carbs">Carbs</option>
               <option value="Fats">Fats</option>
@@ -251,14 +333,14 @@ export default function GroceryTab() {
             </select>
           </div>
 
-          <button className="btn-primary" style={{ gridColumn: "1 / -1" }}>
+          <button className="btn-primary grocery-add-button">
             Add item
           </button>
         </form>
       </div>
 
       <div className="card">
-        <div className="row" style={{ alignItems: "center", justifyContent: "space-between" }}>
+        <div className="row grocery-items-header">
           <h4>Items</h4>
           <small>{filtered.length} shown</small>
         </div>
@@ -268,39 +350,25 @@ export default function GroceryTab() {
         {filtered.length === 0 ? (
           <p>No items match your filters. Add one or generate a starter list.</p>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="grocery-items-list">
             {filtered.map((i) => (
               <div
                 key={i.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "auto 1fr auto auto",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: 12,
-                  borderRadius: 14,
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  background: i.checked ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
-                }}
+                className={i.checked ? "grocery-item-card grocery-item-card-checked" : "grocery-item-card"}
               >
                 <input
                   type="checkbox"
                   checked={i.checked}
                   onChange={() => toggle(i.id)}
-                  style={{ width: 18, height: 18 }}
+                  aria-label={`Toggle ${i.name}`}
+                  className="grocery-item-checkbox"
                 />
 
                 <div>
-                  <div
-                    style={{
-                      fontWeight: 650,
-                      textDecoration: i.checked ? "line-through" : "none",
-                      color: i.checked ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.92)",
-                    }}
-                  >
+                  <div className={i.checked ? "grocery-item-title grocery-item-title-checked" : "grocery-item-title"}>
                     {i.name}
                   </div>
-                  <small>
+                  <small className="grocery-item-meta">
                     {i.quantity} · {i.category}
                   </small>
                 </div>

@@ -52,9 +52,16 @@ export default function AppShell() {
         >
           Profile
         </NavLink>
+
+        <NavLink
+          to="hardware"
+          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
+        >
+          Hardware
+        </NavLink>
       </div>
 
-      <div style={{ height: 14 }} />
+      <div className="app-shell-gap" />
 
       <Outlet />
     </div>
