@@ -1,278 +1,181 @@
-import os
-import time
-from typing import List
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from google.oauth2 import id_token
-from google.auth.transport import requests as grequests
-from dotenv import load_dotenv
+from typing import List, Optional, Dict, Any
+from pathlib import Path
+import joblib
+import json
 
-load_dotenv()  # reads .env in /backend
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+app = FastAPI(title="Smart Macros Clinical Engine V3 - Distinction Edition")
 
-app = FastAPI()
+# --- LOAD AI MODEL & LOCAL DATABASE ---
+try:
+    risk_model = joblib.load(Path(__file__).with_name("clinical_risk_model.pkl"))
+    print("✅ AI Clinical Risk Model loaded.")
+except Exception as e:
+    risk_model = None
+    print(f"⚠️ Warning: Could not load AI model. Error: {e}")
 
-# Allow your Vite dev origin to call the API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-class TokenIn(BaseModel):
-    id_token: str
-
-
-class MedicalProfile(BaseModel):
-    goal: str
-    dietary_preference: str
-    nutrition_disability: str
-    allergies: List[str] = Field(default_factory=list)
+try:
+    with open(Path(__file__).with_name("uk_grocery_db.json"), "r") as f:
+        GROCERY_DB = json.load(f)
+    print(f"✅ CoFID Database loaded: {len(GROCERY_DB)} gold-standard items available.")
+except Exception as e:
+    GROCERY_DB = []
+    print(f"⚠️ Warning: Could not load uk_grocery_db.json. Error: {e}")
 
 
-class ClinicalBasketItem(BaseModel):
-    name: str
-    category: str
-    ai_flag: str | None = None
-
-
+# --- DATA MODELS ---
 class PatientProfile(BaseModel):
-    goal: str
-    dietary_preference: str
-    nutrition_disability: str
-    allergies: List[str] = Field(default_factory=list)
+    patient_id: str
+    condition_code: str  # "DIABETES", "COELIAC", "CVD", "NONE"
 
-
-class MacroTarget(BaseModel):
-    target_protein_g: int
-    target_carbs_g: int
-    target_fat_g: int
+class OptimizationRequest(BaseModel):
+    patient_profile: PatientProfile
+    target_protein_g: float
     budget_pennies: int
 
-
-class TelemetryData(BaseModel):
-    patient_id: str
-    glucose_readings_mmol: List[float] = Field(default_factory=list)
-    heart_rate_bpm: List[int] = Field(default_factory=list)
-
-
-class OCRReceiptLine(BaseModel):
-    raw_text: str
-    parsed_price_pennies: int
+class BasketAnalysisRequest(BaseModel):
+    age: int
+    condition_code: int  # 0=None, 1=Coeliac, 2=Diabetes_T2
+    total_carbs_g: float
+    total_fiber_g: float
 
 
-class ReceiptUpload(BaseModel):
-    retailer: str
-    lines: List[OCRReceiptLine] = Field(default_factory=list)
-
-@app.get("/")
-def root():
-    return {"ok": True, "service": "Smart Macros API"}
-
-@app.post("/auth/google")
-def auth_google(payload: TokenIn):
-    if not GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=500, detail="Server misconfigured: missing GOOGLE_CLIENT_ID")
-    try:
-        info = id_token.verify_oauth2_token(
-            payload.id_token, grequests.Request(), GOOGLE_CLIENT_ID
-        )
-        # TODO: upsert user in DB and mint your own session JWT
-        return {
-            "ok": True,
-            "sub": info["sub"],
-            "email": info.get("email"),
-            "name": info.get("name"),
-            "picture": info.get("picture"),
-        }
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid Google ID token")
-
-
-@app.post("/api/generate-clinical-basket")
-def generate_basket(profile: MedicalProfile):
-    time.sleep(1.5)
-
-    base_basket = [
-        ClinicalBasketItem(name="Chicken breast", category="Protein"),
-        ClinicalBasketItem(name="Broccoli", category="Veg"),
-    ]
-
-    if profile.nutrition_disability == "COELIAC":
-        base_basket.append(
-            ClinicalBasketItem(name="Gluten-Free Pasta", category="Carbs", ai_flag="Allergen Swap")
-        )
-    elif profile.nutrition_disability in ["DIABETES_T1", "DIABETES_T2"]:
-        base_basket.append(
-            ClinicalBasketItem(name="High-Fibre Wraps", category="Carbs", ai_flag="Glycemic Control")
-        )
-
-    return {
-        "status": "success",
-        "message": "AI Clinical constraints applied.",
-        "basket": [item.model_dump() for item in base_basket],
-    }
-
-
+# --- ENDPOINT 1: CLINICAL SCREENING ENGINE ---
 @app.post("/api/v1/engine/clinical-screening")
 def clinical_screening(profile: PatientProfile):
-    time.sleep(1.2)
-
-    analysis = {
-        "patient_safety_score": 0.98,
-        "flags": [],
-        "recommended_substitutions": [],
+    """
+    Generates strict medical guardrails based on the Golden Trio conditions.
+    """
+    flags = {
+        "block_high_gi": False,
+        "require_gluten_free": False,
+        "daily_sodium_limit_mg": None 
     }
-
-    if profile.nutrition_disability == "DIABETES_T2":
-        analysis["flags"].append(
-            {"severity": "HIGH", "trigger": "Refined Carbohydrates", "action": "BLOCK"}
-        )
-        analysis["recommended_substitutions"].append(
-            {
-                "original": "White Rice",
-                "substitute": "Quinoa / Cauliflower Rice",
-                "clinical_reason": "Lower glycemic index for blood sugar stabilization.",
-            }
-        )
-
-    if profile.nutrition_disability == "COELIAC":
-        analysis["flags"].append({"severity": "CRITICAL", "trigger": "Gluten", "action": "BLOCK"})
-        analysis["recommended_substitutions"].append(
-            {
-                "original": "Standard Pasta",
-                "substitute": "Chickpea Pasta",
-                "clinical_reason": "Zero gluten, higher protein yield.",
-            }
-        )
-
-    if "Peanuts" in profile.allergies:
-        analysis["flags"].append(
-            {"severity": "CRITICAL", "trigger": "Peanuts/Tree Nuts", "action": "BLOCK"}
-        )
+    
+    if profile.condition_code == "DIABETES":
+        flags["block_high_gi"] = True
+    elif profile.condition_code == "COELIAC":
+        flags["require_gluten_free"] = True
+    elif profile.condition_code == "CVD":
+        # Strict NHS guideline: Max 2000mg sodium per day, we allocate 800mg for this meal/basket
+        flags["daily_sodium_limit_mg"] = 800.0 
 
     return {
-        "status": "success",
-        "engine": "Clinical_Heuristic_V1",
-        "analysis": analysis,
+        "patient_id": profile.patient_id,
+        "screening_status": "COMPLETED",
+        "applied_clinical_flags": flags
     }
 
 
+# --- ENDPOINT 2: MULTI-OBJECTIVE OPTIMIZER (CONSTRAINED GREEDY) ---
 @app.post("/api/v1/engine/basket-optimizer")
-def optimize_basket(target: MacroTarget):
-    time.sleep(1.5)
+def optimize_basket(request: OptimizationRequest):
+    """
+    Solves the conflicting constraints: Maximize Protein, Minimize Cost, Respect Medical Guardrails.
+    """
+    if not GROCERY_DB:
+        raise HTTPException(status_code=500, detail="Database offline.")
 
-    db = [
-        {"name": "Chicken Breast (1kg)", "protein": 230, "carbs": 0, "fat": 12, "price_p": 550},
-        {"name": "Tofu (500g)", "protein": 80, "carbs": 10, "fat": 45, "price_p": 250},
-        {"name": "Brown Rice (1kg)", "protein": 25, "carbs": 230, "fat": 8, "price_p": 120},
-        {"name": "Olive Oil (500ml)", "protein": 0, "carbs": 0, "fat": 500, "price_p": 400},
-        {"name": "Broccoli (500g)", "protein": 14, "carbs": 35, "fat": 2, "price_p": 70},
-    ]
+    # 1. Run the patient through the screening engine first
+    screening = clinical_screening(request.patient_profile)
+    flags = screening["applied_clinical_flags"]
 
+    # 2. Filter the database (Hard Constraints)
+    valid_foods = []
+    for item in GROCERY_DB:
+        # Check Coeliac Guardrail
+        if flags["require_gluten_free"] and not item["is_gluten_free"]:
+            continue
+        # Check Diabetes Guardrail
+        if flags["block_high_gi"] and item["gi_index"] == "HIGH":
+            continue
+        valid_foods.append(item)
+
+    # 3. Sort by Protein-to-Penny Ratio (The Maximization Objective)
+    sorted_foods = sorted(
+        valid_foods, 
+        key=lambda x: (x["macros_per_100g"]["protein_g"] / max(x["price_pennies"], 1)), 
+        reverse=True
+    )
+
+    # 4. Pack the Knapsack (Evaluate Rolling Constraints like Budget and Sodium)
     basket = []
-    current_protein = 0
-    current_carbs = 0
-    current_fat = 0
+    current_protein = 0.0
     total_cost = 0
+    current_sodium = 0.0
 
-    protein_sources = sorted(db, key=lambda item: (item["price_p"] / max(item["protein"], 1)))
+    for food in sorted_foods:
+        # Check if we can afford it
+        if total_cost + food["price_pennies"] > request.budget_pennies:
+            continue
+            
+        # Check CVD Sodium Guardrail dynamically
+        if flags["daily_sodium_limit_mg"] is not None:
+            if current_sodium + food["macros_per_100g"]["sodium_mg"] > flags["daily_sodium_limit_mg"]:
+                continue # Skip this item to save the patient's heart (e.g., skips sausages)
 
-    for item in protein_sources:
-        if total_cost + item["price_p"] <= target.budget_pennies and current_protein < target.target_protein_g:
-            basket.append(item["name"])
-            current_protein += item["protein"]
-            current_carbs += item["carbs"]
-            current_fat += item["fat"]
-            total_cost += item["price_p"]
+        # Add to basket
+        basket.append(food["name"])
+        current_protein += food["macros_per_100g"]["protein_g"]
+        total_cost += food["price_pennies"]
+        current_sodium += food["macros_per_100g"]["sodium_mg"]
+
+        # Stop if we hit our protein goal
+        if current_protein >= request.target_protein_g:
+            break
 
     return {
-        "optimization_status": "Converged",
+        "optimization_status": "CONVERGED" if current_protein >= request.target_protein_g else "PARTIAL_CONVERGENCE",
+        "patient_condition": request.patient_profile.condition_code,
         "basket_items": basket,
         "macros_achieved": {
-            "protein_g": current_protein,
-            "carbs_g": current_carbs,
-            "fat_g": current_fat,
+            "protein_g": round(current_protein, 1),
+            "sodium_mg": round(current_sodium, 1)
         },
-        "total_cost_gbp": total_cost / 100,
-        "budget_remaining_gbp": (target.budget_pennies - total_cost) / 100,
+        "financials": {
+            "total_cost_gbp": round(total_cost / 100, 2),
+            "budget_remaining_gbp": round((request.budget_pennies - total_cost) / 100, 2)
+        }
     }
 
 
-@app.post("/api/v1/engine/telemetry-anomaly-detect")
-def detect_anomalies(telemetry: TelemetryData):
-    time.sleep(1.8)
-
-    anomalies = []
-    recommended_action = "Maintain current plan."
-
-    max_glucose = max(telemetry.glucose_readings_mmol) if telemetry.glucose_readings_mmol else 0
-    avg_hr = sum(telemetry.heart_rate_bpm) / len(telemetry.heart_rate_bpm) if telemetry.heart_rate_bpm else 0
-
-    if max_glucose > 10.0:
-        anomalies.append(
-            {
-                "type": "GLUCOSE_SPIKE",
-                "confidence": 0.94,
-                "detected_value": max_glucose,
-                "threshold": 10.0,
-                "clinical_risk": "HIGH",
-            }
-        )
-        recommended_action = "Trigger automated low-GI macro swap for next 3 meals. Alert clinician."
-
-    if avg_hr > 90:
-        anomalies.append(
-            {
-                "type": "ELEVATED_RESTING_HR",
-                "confidence": 0.88,
-                "detected_value": round(avg_hr, 1),
-                "clinical_risk": "MODERATE",
-            }
-        )
-
+# --- ENDPOINT 3: HL7 FHIR INTEROPERABILITY ---
+@app.get("/api/v1/export/fhir/CarePlan/{patient_id}")
+def export_fhir_careplan(patient_id: str):
     return {
-        "pipeline_status": "Active",
-        "data_points_analyzed": len(telemetry.glucose_readings_mmol) + len(telemetry.heart_rate_bpm),
-        "anomalies_detected": len(anomalies),
-        "details": anomalies,
-        "ai_recommended_intervention": recommended_action,
+        "resourceType": "CarePlan",
+        "id": f"sm-{patient_id}-2026",
+        "status": "active",
+        "intent": "order",
+        "category": [{"text": "Dietary Nutrition Plan"}],
+        "subject": {"reference": f"Patient/{patient_id}"},
+        "activity": [{"detail": {"kind": "NutritionOrder", "status": "in-progress"}}]
     }
 
 
-@app.post("/api/v1/data/ingest-receipt")
-def ingest_receipt(receipt: ReceiptUpload):
-    time.sleep(2.1)
+# --- ENDPOINT 4: AI GLYCEMIC RISK PREDICTION ---
+@app.post("/api/v1/engine/ai-risk-validation")
+def validate_basket_with_ai(request: BasketAnalysisRequest):
+    if risk_model is None:
+        raise HTTPException(status_code=503, detail="AI model offline.")
 
-    mapped_items = []
-    total_savings_identified = 0
+    features = [[request.age, request.condition_code, request.total_carbs_g, request.total_fiber_g]]
+    predicted_risk = risk_model.predict(features)[0]
 
-    for line in receipt.lines:
-        gtin_match = "000" + str(len(line.raw_text) * 12345)[:9]
-
-        market_avg_price = line.parsed_price_pennies - 45
-        if market_avg_price > 0:
-            total_savings_identified += 45
-
-        mapped_items.append(
-            {
-                "raw_input": line.raw_text,
-                "mapped_gtin": gtin_match,
-                "confidence_score": 0.92,
-                "price_paid_gbp": line.parsed_price_pennies / 100,
-                "market_average_gbp": market_avg_price / 100,
-            }
-        )
+    if predicted_risk >= 8.0:
+        safety_status = "CRITICAL_RISK: REJECT BASKET"
+    elif predicted_risk >= 6.0:
+        safety_status = "MODERATE_RISK: REQUIRE CLINICIAN APPROVAL"
+    else:
+        safety_status = "SAFE: AUTO-APPROVE"
 
     return {
-        "status": "Processed",
-        "retailer_identified": receipt.retailer,
-        "items_mapped_to_catalog": len(mapped_items),
-        "details": mapped_items,
-        "ai_insight": f"Patient overpaid by £{total_savings_identified / 100:.2f} compared to our optimized basket pricing.",
+        "prediction_status": "SUCCESS",
+        "ai_analysis": {
+            "predicted_glycemic_spike_1_to_10": round(predicted_risk, 2),
+            "clinical_guardrail": safety_status
+        }
     }
 
 if __name__ == "__main__":
