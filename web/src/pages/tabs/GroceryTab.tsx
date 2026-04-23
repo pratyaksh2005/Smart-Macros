@@ -282,7 +282,7 @@ export default function GroceryTab() {
 
         {/* SYMPTOM REPORTING PAD */}
         {viewDate === todayDate && (
-          <div className="card" style={{ padding: '20px', border: currentSymptom !== "NONE" ? '2px solid #ef4444' : '1px solid #e2e8f0' }}>
+          <div className={`card ${currentSymptom !== "NONE" ? "animate-alert-pulse" : ""}`} style={{ padding: '20px', border: currentSymptom !== "NONE" ? '2px solid #ef4444' : '1px solid #e2e8f0' }}>
             <h4 style={{ margin: '0 0 12px 0', color: currentSymptom !== "NONE" ? '#dc2626' : '#0f172a' }}>
               {currentSymptom !== "NONE" ? "Active Symptom Override" : "Physiological Status: Stable"}
             </h4>
@@ -324,7 +324,7 @@ export default function GroceryTab() {
               </div>
 
               {generatedMeal && (
-                <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px' }}>
+                <div className="animate-slide-up" style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px' }}>
                   <h5 style={{ margin: '0 0 8px 0', color: '#2563eb' }}>Proposed {mealType}</h5>
                   <ul style={{ paddingLeft: '20px', fontSize: '13px', margin: '0 0 16px 0' }}>
                     {generatedMeal.map((item, i) => <li key={i}>{item.name} <span style={{color: '#94a3b8'}}>({item.category})</span></li>)}
@@ -447,7 +447,7 @@ export default function GroceryTab() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {activeDisplayTimeline.map((event) => (
-              <div key={event.id} style={{ display: 'flex', gap: '12px' }}>
+              <div key={event.id} className="animate-slide-up" style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ width: '50px', fontSize: '13px', color: '#64748b', paddingTop: '4px', fontWeight: 'bold' }}>{event.timestamp}</div>
                 <div style={{ flex: 1, padding: '12px', borderRadius: '8px', borderLeft: event.alert ? '4px solid #ef4444' : (event.type === 'SKIP' ? '4px solid #f59e0b' : (event.type === 'MANUAL' ? '4px solid #94a3b8' : '4px solid #22c55e')), backgroundColor: event.alert ? '#fef2f2' : (event.type === 'SKIP' ? '#fffbeb' : (event.type === 'MANUAL' ? '#f8fafc' : '#f0fdf4')) }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

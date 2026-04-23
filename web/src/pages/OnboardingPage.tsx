@@ -75,14 +75,17 @@ export default function OnboardingPage() {
 
           <h4 style={{ color: '#2563eb', marginTop: '32px', marginBottom: '12px' }}>Step 2: Medical Profile</h4>
           <div>
-            <label>Primary Nutritional Condition</label>
-            <select value={nutritionDisability} onChange={e => setNutritionDisability(e.target.value as NutritionDisability)} aria-label="Primary nutritional condition" style={{ border: nutritionDisability !== 'NONE' ? '2px solid #2563eb' : '1px solid #cbd5e1' }}>
+            <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase' }}>Primary Nutritional Condition</label>
+            <select 
+              value={nutritionDisability} 
+              onChange={e => setNutritionDisability(e.target.value as NutritionDisability)}
+              aria-label="Primary nutritional condition"
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', marginTop: '6px', backgroundColor: '#fff' }}
+            >
               <option value="NONE">None</option>
               <option value="DIABETES_T1">Type 1 Diabetes (T1D)</option>
               <option value="DIABETES_T2">Type 2 Diabetes (T2D)</option>
-              <option value="COELIAC">Coeliac Disease</option>
               <option value="CVD">Cardiovascular Disease / Hypertension</option>
-              <option value="IBS">Irritable Bowel Syndrome (IBS)</option>
             </select>
           </div>
           

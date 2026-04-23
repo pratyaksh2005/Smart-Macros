@@ -132,3 +132,68 @@ button:disabled {
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .row { display: flex; align-items: center; justify-content: space-between; }
 .hr { height: 1px; background-color: var(--border); margin: 20px 0; }
+
+/* --- PREMIUM UI ANIMATIONS --- */
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes clinicalPulse {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Utility Classes */
+.animate-slide-up {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeInScale 0.3s ease-out forwards;
+}
+
+.animate-alert-pulse {
+  animation: clinicalPulse 2s infinite;
+}
+
+/* --- PREMIUM LOGIN ANIMATIONS --- */
+
+/* Slow-panning animated background */
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-bg-gradient {
+  background: linear-gradient(-45deg, #f8fafc, #eff6ff, #e0f2fe, #f1f5f9);
+  background-size: 400% 400%;
+  animation: gradientPan 15s ease infinite;
+}
+
+/* Staggered entrance delays */
+.stagger-1 {
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.25s;
+}
+
+.stagger-3 {
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.4s;
+}

@@ -64,7 +64,7 @@ export default function AIDiagnostics() {
 			</div>
 
 			{mlResults && (
-				<div className="card" style={{ padding: "32px", borderTop: "4px solid #10b981" }}>
+				<div className="card animate-fade-in" style={{ padding: "32px", borderTop: "4px solid #10b981" }}>
 					<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
 						<h3 style={{ margin: 0 }}>Diagnostic Results</h3>
 						<span style={{ padding: "6px 12px", backgroundColor: "#ecfdf5", color: "#059669", borderRadius: "99px", fontSize: "12px", fontWeight: "bold" }}>
