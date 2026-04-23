@@ -200,7 +200,7 @@ class _DietEngineTabState extends State<DietEngineTab> {
 
     // CRITICAL: 10.0.2.2 points to your computer's localhost from the Android Emulator!
     // If using an iOS Simulator, change this to 127.0.0.1
-    const String apiUrl = "http://10.0.2.2:8000/api/v1/engine/basket-optimizer";
+    const String apiUrl = "http://127.0.0.1:8000/api/v1/engine/basket-optimizer";
 
     final payload = {
       "patient_profile": {
