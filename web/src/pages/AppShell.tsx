@@ -5,6 +5,7 @@ import { getUser } from "../services/storage";
 export default function AppShell() {
   const nav = useNavigate();
   const user = getUser();
+  const role = user?.role || "PATIENT"; 
 
   function onLogout() {
     logout();
@@ -12,58 +13,52 @@ export default function AppShell() {
   }
 
   return (
-    <div className="container">
-      <div className="navbar">
-        <div className="brand">
-          <div className="brand-title">Smart Macros</div>
-          <div className="brand-sub">
-            {user?.email ? `Signed in as ${user.email}` : "Prototype build"}
+    <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', marginBottom: '24px' }}>
+        <div>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a' }}>Smart Macros</div>
+          <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>
+            {role === "CLINICIAN" ? "🏥 Clinician Dashboard" : "👤 Patient Dashboard"}
           </div>
         </div>
 
-        <button onClick={onLogout}>Logout</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <span style={{ fontSize: '14px', color: '#475569' }}>{user?.email}</span>
+          <button onClick={onLogout} style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div className="tabs">
-        <NavLink
-          to="workout"
-          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
-        >
-          Workout
-        </NavLink>
-
-        <NavLink
-          to="meals"
-          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
-        >
-          Meals
-        </NavLink>
-
-        <NavLink
-          to="grocery"
-          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
-        >
-          Grocery
-        </NavLink>
-
-        <NavLink
-          to="profile"
-          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
-        >
-          Profile
-        </NavLink>
-
-        <NavLink
-          to="hardware"
-          className={({ isActive }) => (isActive ? "tab tab-active" : "tab")}
-        >
-          Hardware
-        </NavLink>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0', paddingBottom: '2px' }}>
+        {role === "PATIENT" ? (
+          <>
+            <TabLink to="profile" label="Medical Profile" />
+            <TabLink to="grocery" label="Clinical Diet Engine" />
+            <TabLink to="messages" label="Secure Inbox" />
+          </>
+        ) : (
+          <>
+            <TabLink to="clinician-dashboard" label="Patient Directory" />
+            <TabLink to="ai-diagnostics" label="Risk Analysis Engine" />
+          </>
+        )}
       </div>
 
-      <div className="app-shell-gap" />
-
-      <Outlet />
+      <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+        <Outlet />
+      </div>
     </div>
+  );
+}
+
+function TabLink({ to, label }: { to: string, label: string }) {
+  return (
+    <NavLink to={to} style={({ isActive }) => ({
+      padding: '12px 20px', textDecoration: 'none', color: isActive ? '#2563eb' : '#64748b',
+      fontWeight: isActive ? 'bold' : '500', borderBottom: isActive ? '3px solid #2563eb' : '3px solid transparent', transition: 'all 0.2s'
+    })}>
+      {label}
+    </NavLink>
   );
 }

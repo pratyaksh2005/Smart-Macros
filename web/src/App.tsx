@@ -12,6 +12,9 @@ import MealsTab from "./pages/tabs/MealsTab";
 import GroceryTab from "./pages/tabs/GroceryTab";
 import ProfileTab from "./pages/tabs/ProfileTab";
 import HardwareTab from "./pages/tabs/HardwareTab";
+import ClinicianDashboard from "./pages/tabs/ClinicianDashboard";
+import AIDiagnostics from "./pages/tabs/AIDiagnostics";
+import MessagesTab from "./pages/tabs/MessagesTab";
 
 export default function App() {
   return (
@@ -49,8 +52,11 @@ export default function App() {
           <Route path="workout" element={<WorkoutTab />} />
           <Route path="meals" element={<MealsTab />} />
           <Route path="grocery" element={<GroceryTab />} />
+          <Route path="messages" element={<MessagesTab />} />
           <Route path="profile" element={<ProfileTab />} />
           <Route path="hardware" element={<HardwareTab />} />
+          <Route path="clinician-dashboard" element={<ClinicianDashboard />} />
+          <Route path="ai-diagnostics" element={<AIDiagnostics />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

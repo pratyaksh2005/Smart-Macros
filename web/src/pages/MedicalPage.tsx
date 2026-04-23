@@ -36,6 +36,25 @@ export default function MedicalPage() {
       },
     });
 
+    localStorage.setItem(
+      "sm_patient_profile",
+      JSON.stringify({
+        ...user.profile,
+        nutritionDisability,
+        disabilityNotes: disabilityNotes.trim(),
+      })
+    );
+
+    const accounts = JSON.parse(localStorage.getItem("sm_accounts") || "{}");
+    if (accounts[user.email]) {
+      accounts[user.email].profile = {
+        ...user.profile,
+        nutritionDisability,
+        disabilityNotes: disabilityNotes.trim(),
+      };
+      localStorage.setItem("sm_accounts", JSON.stringify(accounts));
+    }
+
     nav("/app");
   }
 

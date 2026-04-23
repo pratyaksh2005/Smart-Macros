@@ -96,9 +96,9 @@ for category, meta in CATEGORIES.items():
         time.sleep(1) # Be polite to the API to avoid rate limits
         
     except Exception as e:
-        print(f"⚠️ Error fetching {category}: {e}")
+        print(f"Error fetching {category}: {e}")
 
-print(f"\n✅ PIPELINE COMPLETE. Successfully extracted {len(grocery_database)} clinical-grade food items.")
+print(f"\nPIPELINE COMPLETE. Successfully extracted {len(grocery_database)} clinical-grade food items.")
 
 # Save to local JSON database
 with open("uk_grocery_db.json", "w") as f:

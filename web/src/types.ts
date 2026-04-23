@@ -19,6 +19,7 @@ export type UserProfile = {
   age: number;
   heightCm: number;
   weightKg: number;
+  gender: "MALE" | "FEMALE" | "OTHER";
   activityLevel: ActivityLevel;
   goal: Goal;
   dietaryPreference: "NONE" | "VEGETARIAN" | "VEGAN" | "HALAL" | "KOSHER";
@@ -30,7 +31,8 @@ export type UserProfile = {
 export type AuthUser = {
   email: string;
   createdAt: string;
-  profile?: UserProfile;
+  role?: "PATIENT" | "CLINICIAN";
+  profile?: UserProfile | null;
 };
 
 export type GroceryItem = {

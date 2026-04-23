@@ -18,5 +18,7 @@ export function login(email: string, _password: string): AuthUser {
 }
 
 export function logout(): void {
-  clearUser();
+  // ONLY remove the user token. DO NOT run localStorage.clear()
+  // otherwise you will delete your timeline and history logs!
+  localStorage.removeItem("sm_user");
 }

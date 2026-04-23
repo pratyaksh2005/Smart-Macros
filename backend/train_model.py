@@ -36,7 +36,7 @@ df = pd.DataFrame({
 })
 
 # 2. TRAIN THE MACHINE LEARNING MODEL
-print("🧠 TRAINING RANDOM FOREST REGRESSOR...")
+print("TRAINING RANDOM FOREST REGRESSOR...")
 X = df[['age', 'condition_code', 'total_carbs_g', 'total_fiber_g']]
 y = df['glycemic_risk']
 
@@ -51,7 +51,7 @@ predictions = model.predict(X_test)
 mse = mean_squared_error(y_test, predictions)
 r2 = r2_score(y_test, predictions)
 
-print(f"✅ MODEL TRAINING COMPLETE.")
+print(f"MODEL TRAINING COMPLETE.")
 print(f"📊 ACADEMIC METRICS FOR FYP REPORT:")
 print(f"   - Mean Squared Error (MSE): {mse:.4f} (Lower is better)")
 print(f"   - R-Squared (R2): {r2:.4f} (Closer to 1.0 is better)")
